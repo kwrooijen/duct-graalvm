@@ -1,18 +1,22 @@
 {:duct.profile/base
  {:duct.core/project-ns simple
 
-  :duct.router/ataraxy
-  {:routes {}}
+  ;; Breaks graalVM for some reason
+  ;; :duct.router/ataraxy
+  ;; {:routes
+  ;;  {"/test" [:simple.handler/test]}}
 
+  ;; Hikari crashes with null pointer exception
+  :duct.database.sql/hikaricp {:jdbc-url #duct/env ["JDBC_DATABASE_URL"]}
+
+  :simple.handler/test {}
   :duct.server.http/http-kit
-  {:port 3000}}
+  {:port 3000
+   :x #ig/ref :duct.database/sql}}
 
  :duct.profile/dev   #duct/include "dev"
  :duct.profile/local #duct/include "local"
  :duct.profile/prod  {}
 
  :duct.module/logging {}
- :duct.module.web/api
- {}
- :duct.module/sql
- {}}
+ :duct.module.web/api {}}

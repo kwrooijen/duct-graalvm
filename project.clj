@@ -9,31 +9,59 @@
                  [duct/module.sql "0.6.0"]
                  [duct/module.web "0.7.0"]
                  [duct/server.http.http-kit "0.1.4"]
-                 [org.postgresql/postgresql "42.2.12"]]
-  :plugins [[duct/lein-duct "0.12.1"]]
+                 [org.postgresql/postgresql "42.2.12"]
+                 [duct/database.sql.hikaricp "0.4.0" :exclusions [hikari-cp]]
+                 [hikari-cp "2.12.0" :exclusions [com.zaxxer/HikariCP]]
+                 [com.zaxxer/HikariCP "3.4.5"]]
+  :plugins [[duct/lein-duct "0.12.1"]
+            [io.taylorwood/lein-native-image "0.3.1"]]
   :main ^:skip-aot simple.main
   :resource-paths ["resources"]
   :prep-tasks     ["javac" "compile" ["run" ":duct/compiler"]]
   :middleware     [lein-duct.plugin/middleware]
+  :source-paths ["src"]
 
-  :aliases
-  {"native"
-   ["shell"
-    "native-image" "--report-unsupported-elements-at-runtime" "--no-server"
-    "--initialize-at-build-time"
-    "-jar" "./target/${:uberjar-name:-${:name}-${:version}-standalone.jar}"
-    "-H:Name=./target/${:name}"]
+  :native-image {:opts [
+                        "--allow-incomplete-classpath"
+                        "--enable-url-protocols=http,https"
+                        "--initialize-at-build-time"
+                        "--initialize-at-run-time=com.jcraft.jsch.agentproxy.connector.PageantConnector$User32"
+                        "--initialize-at-run-time=com.sun.jna.platform.win32.Kernel32"
+                        "--initialize-at-run-time=com.sun.jna.platform.win32.User32"
+                        "--initialize-at-run-time=org.eclipse.jgit.transport.WalkEncryption$Vals"
+                        "--initialize-at-run-time=org.postgresql.sspi.SSPIClient"
+                        ;; "--initialize-at-run-time=simple.main"
+                        "-H:IncludeResources=.*.edn"
+                        "-H:+ReportExceptionStackTraces"
+                        "--no-fallback"
+                        "--no-server"
+                        "--report-unsupported-elements-at-runtime"
+                        "--verbose"
+                        "-Dclojure.compiler.direct-linking=true"
+                        ;;extra
 
-   "run-native" ["shell" "./target/${:name}"]}
+                        "--initialize-at-run-time=org.apache.commons.logging.LogAdapter$Log4jLog"
+                        "--initialize-at-run-time=org.hibernate.secure.internal.StandardJaccServiceImpl"
+                        "--initialize-at-run-time=org.postgresql.sspi.SSPIClient"
+                        "--initialize-at-run-time=org.hibernate.dialect.OracleTypesHelper"
+                        "--initialize-at-build-time=org.postgresql.Driver"
+                        "--initialize-at-build-timeorg.postgresql.util.SharedTimer"
+                        "--initialize-at-build-timeorg.hibernate.engine.spi.EffectiveEntityGraph"
+                        "--initialize-at-build-timeorg.hibernate.engine.spi.LoadQueryInfluencers"
+
+                        ]}
 
   :uberjar-name "simple-main.jar"
+
+  :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
 
   :profiles
   {:dev  [:project/dev :profiles/dev]
    :repl {:prep-tasks   ^:replace ["javac" "compile"]
           :repl-options {:init-ns user}}
    :uberjar {:aot :all
-             :resource-paths ["resources" "resources/simple"]}
+             :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+             :resource-paths ["resources"]}
    :profiles/dev {}
    :project/dev  {:source-paths   ["dev/src"]
                   :resource-paths ["dev/resources"]

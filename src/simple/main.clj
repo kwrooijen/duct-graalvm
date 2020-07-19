@@ -1,19 +1,26 @@
 (ns simple.main
-  (:gen-class)
-  (:require [duct.core :as duct]
-            [clojure.java.io :as io]))
+  (:require
+   [duct.core :as duct]
+   [clojure.java.io :as io]
+   [duct.module.web]
+   [duct.module.sql]
+   [duct.module.logging]
+   [duct.handler.static]
+   [duct.server.http.http-kit]
+   [duct.handler.root]
+   [duct.middleware.web]
+   [duct.logger.timbre]
+   [duct.router.ataraxy]
+   [simple.handler.test]
+   [duct.database.sql.hikaricp]
+   [duct.router.cascading])
+  (:gen-class))
 
 (duct/load-hierarchy)
-
-(defn spy [v x]
-  (println "SPYING:"x " " v)
-  v)
 
 (defn -main [& args]
   (let [keys     (or (duct/parse-keys args) [:duct/daemon])
         profiles [:duct.profile/prod]]
-    (-> (io/resource "config.edn")
-        (spy "RESOURCE")
+    (-> (io/resource "simple/config.edn")
         (duct/read-config)
-        (spy "READ")
         (duct/exec-config profiles keys))))
