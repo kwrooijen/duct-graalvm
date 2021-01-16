@@ -1,12 +1,11 @@
 {:duct.profile/base
  {:duct.core/project-ns simple
 
-  ;; Breaks graalVM for some reason
-  ;; :duct.router/ataraxy
-  ;; {:routes
-  ;;  {"/test" [:simple.handler/test]}}
+  :duct.router/reitit
+  {:routes
+   [["/" {}
+     ["test" {:get {:handler #ig/ref :simple.handler/test}}]]]}
 
-  ;; Hikari crashes with null pointer exception
   :duct.database.sql/hikaricp {:jdbc-url #duct/env ["JDBC_DATABASE_URL"]}
 
   :simple.handler/test {}
