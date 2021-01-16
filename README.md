@@ -2,6 +2,13 @@
 
 FIXME: description
 
+## Building Graalvm
+
+```sh
+JDBC_DATABASE_URL="jdbc:postgresql://localhost:5432/postgres?user=postgres&password=postgres" lein native-image
+```
+
+
 ## Developing
 
 ### Setup
