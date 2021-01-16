@@ -10,13 +10,20 @@
                  [duct/module.web "0.7.0"]
                  [duct/server.http.http-kit "0.1.4"]
                  [org.postgresql/postgresql "42.2.12"]
-                 [duct/database.sql.hikaricp "0.4.0" :exclusions [hikari-cp com.zaxxer/HikariCP org.slf4j/slf4j-api]]
                  [nl.mediquest/duct.module.reitit "1.0.1"]
 
                  ;; HikariCP Fork: https://github.com/leafclick/HikariCP
                  ;; Need to build locally
+                 [duct/database.sql.hikaricp "0.4.0" :exclusions [hikari-cp com.zaxxer/HikariCP org.slf4j/slf4j-api]]
+
+                 ;; Latest
+                 ;; [hikari-cp "2.13.0"]
+                 ;; [com.zaxxer/HikariCP "3.4.5"]
+
+                 ;; GraalVM Fix
                  [com.zaxxer/HikariCP "3.3.2-graal-RC4"]
-                 [hikari-cp "1.8.3" :exclusions [com.zaxxer/HikariCP org.slf4j/slf4j-api]]]
+                 [hikari-cp "1.8.3" :exclusions [com.zaxxer/HikariCP org.slf4j/slf4j-api]]
+                 ]
   :plugins [[duct/lein-duct "0.12.1"]
             [io.taylorwood/lein-native-image "0.3.1"]]
   :main ^:skip-aot simple.main
@@ -25,8 +32,7 @@
   :middleware     [lein-duct.plugin/middleware]
   :source-paths ["src"]
 
-  :native-image {:opts [
-                        "--allow-incomplete-classpath"
+  :native-image {:opts ["--allow-incomplete-classpath"
                         "--enable-url-protocols=http,https"
                         "--initialize-at-build-time"
                         "--initialize-at-run-time=com.jcraft.jsch.agentproxy.connector.PageantConnector$User32"
@@ -57,7 +63,8 @@
                         "--initialize-at-run-time=org.postgresql.sspi.NTDSAPI"
                         "--initialize-at-run-time=com.sun.jna.platform.win32.Secur32"
                         "--initialize-at-run-time=com.sun.jna.platform.win32.Kernel32"
-                        "--initialize-at-run-time='java.lang.Math$RandomNumberGeneratorHolder'"]}
+                        ;; "--initialize-at-run-time='java.lang.Math$RandomNumberGeneratorHolder'"
+                        ]}
 
   :uberjar-name "simple-main.jar"
 
